@@ -4,113 +4,132 @@
 
 ### Don't just audit known CVEs. Vet packages before they run.
 
-**The zero-latency, pre-install runtime interceptor defending against AI "Slopsquatting", hallucinated package poisoning, and zero-day supply chain attacks.**
+**The zero-latency runtime interceptor defending developers against AI "Slopsquatting", hallucinated package poisoning, and zero-day supply chain attacks.**
 
-[![CI Matrix](https://img.shields.io/badge/CI-Passing-success?style=flat-square&logo=githubactions)](https://github.com/vette-security/vette/actions)
+[![CI Matrix](https://img.shields.io/badge/CI-Passing-success?style=flat-square&logo=githubactions)](https://github.com/Kaustubh-Barad-007/vette/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![npm version](https://img.shields.io/badge/npm-v0.1.0-red?style=flat-square&logo=npm)](https://www.npmjs.com/package/vette)
-[![VS Code Extension](https://img.shields.io/badge/VS_Code-Extension_Ready-blue?style=flat-square&logo=visualstudiocode)](https://github.com/vette-security/vette/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
 <br/>
 
 ```text
-       ┌─────────────────────────────────────────────────────────────┐
-       │   DEVELOPER PROMPTS LLM  ──►  COPIES "npm install slop-pkg"  │
-       └──────────────────────────────┬──────────────────────────────┘
-                                      │
-                         ┌────────────▼────────────┐
-                         │   🛡️ VETTE INTERCEPTOR  │
-                         └────────────┬────────────┘
-                   ┌──────────────────┴──────────────────┐
-                   ▼                                     ▼
-        [Score < 30 : TRUSTED]              [Score ≥ 70 : CRITICAL RISK]
-        Transparent Pass-Through             🚨 HARD BLOCK (0ms script run)
-         Runs native `npm install`            Host machine remains safe!
+──────────────────────────────────────────────────────────────
+ ✖ BLOCKED  react-secure-crypto-utils (npm)
+  Threat Score: █████████░ 85/100 (CRITICAL RISK)
+  Downloads:    0 last week
+
+  Detected Signals:
+    ✖ Unregistered / Hallucinated Package [+85 pts]
+      Package does not exist on npm. Attackers frequently register
+      these names after LLMs hallucinate them!
+
+  ACTION  Installation prevented. Lifecycle scripts blocked from running.
+──────────────────────────────────────────────────────────────
 ```
 
 </div>
 
 ---
 
-## ⚡ 1-Second Quick Install
+## ⚡ 1-Second Universal Installation
 
-### Windows (PowerShell)
-Open PowerShell and run:
-```powershell
-irm https://raw.githubusercontent.com/vette-security/vette/main/install.ps1 | iex
-```
+### 💻 1. Universal IDE Extension (VS Code, Cursor, Windsurf, VSCodium)
+Installs and activates Vette into **all detected editors on your machine** with a single command:
 
-### macOS / Linux (Bash / Zsh)
-Open terminal and run:
-```bash
-curl -fsSL https://raw.githubusercontent.com/vette-security/vette/main/install.sh | bash
-```
+- **Windows (PowerShell):**
+  ```powershell
+  irm https://raw.githubusercontent.com/Kaustubh-Barad-007/vette/main/install-extension.ps1 | iex
+  ```
+- **macOS / Linux (Terminal):**
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/Kaustubh-Barad-007/vette/main/install-extension.sh | bash
+  ```
+- **Via Vette CLI (if already installed):**
+  ```bash
+  vette install-extension
+  ```
 
-### Universal npm / npx
-```bash
-# Run instantly with npx (zero installation):
-npx vette vet react
+---
 
-# Or install globally:
-npm install -g vette
-```
+### 🛡️ 2. Terminal Pre-Install Guard (Auto-intercepts `npm` & `pip`)
+Automatically wraps `npm install` and `pip install` in your shell so slopsquats are halted **before** scripts execute:
+
+- **Windows (PowerShell):**
+  ```powershell
+  irm https://raw.githubusercontent.com/Kaustubh-Barad-007/vette/main/install.ps1 | iex
+  ```
+- **macOS / Linux:**
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/Kaustubh-Barad-007/vette/main/install.sh | bash
+  ```
+- **Universal CLI via npm:**
+  ```bash
+  npm install -g vette
+  # Or run instantly without installing:
+  npx vette vet react
+  ```
 
 ---
 
 ## 🛑 The Threat: AI "Slopsquatting"
 
-When developers prompt LLMs (ChatGPT, Claude, Cursor, Copilot) for code, the model frequently **hallucinates plausible package names** that don't exist:
+When developers prompt LLMs (ChatGPT, Claude, Cursor, Copilot) for code, the model frequently **hallucinates package names** that sound real:
 - `react-secure-crypto-utils`
 - `langchain-gemini-tools`
 - `fastapi-jwt-bearer-auth`
 
-**The Zero-Day Attack:** Attackers continuously scrape public LLM outputs, register these exact hallucinated names on **npm** and **PyPI**, and pack malicious stealers into `postinstall` scripts or `setup.py`. When a developer copies the LLM snippet and runs `npm install`, the payload executes **immediately**.
+**The Attack:** Scrapers harvest these hallucinated names from LLM logs and register them on **npm** and **PyPI** with malicious `postinstall` or `setup.py` hooks. When developers copy the code and run `npm install`, the payload runs **immediately**.
 
-### Why Existing Tools Fail
-
-| Security Feature | `npm audit` | Snyk / Dependabot | Socket.dev | 🛡️ **Vette** |
-| :--- | :---: | :---: | :---: | :---: |
-| **Blocks BEFORE Lifecycle Scripts Run** | ❌ No | ❌ No | ❌ No | ✅ **YES (Pre-execution Gate)** |
-| **Zero-Day / Freshness Protection (<72h)** | ❌ No | ❌ No | ⚠️ Partial | ✅ **YES (Real-time Velocity Engine)** |
-| **Detects Unregistered AI Hallucinations** | ❌ No | ❌ No | ❌ No | ✅ **YES (Hallucination Alert)** |
-| **Zero Setup / Drops into Shell Aliases** | ❌ No | ❌ No | ❌ No | ✅ **YES (`npm` / `pip` shims)** |
-| **IDE Squigglies & Hover for VS Code/Cursor**| ❌ No | ❌ No | ❌ No | ✅ **YES (Native .vsix Extension)** |
-| **Execution Latency Overhead** | High | High | Medium | ⚡ **< 15ms (Local Cache)** |
+### Why Traditional Scanners Fail:
+- **`npm audit` / Snyk / Dependabot:** Rely on *reported CVE databases*. A zero-day package published 10 minutes ago has **0 CVEs** and passes with zero warnings.
+- **Execution Timing:** Audits run *after* installation. By then, the malicious `postinstall` hook has already exfiltrated `.env` secrets and SSH keys.
+- **Vette's Pre-Install Gate:** Vette inspects package reputation in **<100ms** and **blocks execution before any script touches your system**.
 
 ---
 
-## 💻 IDE Extension (VS Code & Cursor)
+## 🖥️ What Vette Looks Like in Action
 
-Vette runs directly inside your IDE, giving you real-time visual feedback as you type or paste dependencies into `package.json` or `requirements.txt`.
-
-<div align="center">
-<img src="https://raw.githubusercontent.com/vette-security/vette/main/.github/assets/preview.png" alt="Vette IDE Preview" width="700" onerror="this.style.display='none'"/>
-</div>
-
-### Features:
-- 🔴 **Inline Squigglies:** Marks hallucinated or dangerous packages in red before you ever run `npm install`.
-- 🔍 **Rich Hover Card:** Hover over any package to inspect its **SlopScore (0–100)**, age, weekly download count, maintainers, and detected threat signals.
-- 🛡️ **Status Bar Indicator:** `$(shield) Vette` in the bottom bar with 1-click workspace scan.
-
-### Installation in VS Code or Cursor:
-Download [`vette-vscode-0.1.0.vsix`](extension/vette-vscode-0.1.0.vsix) from [Releases](https://github.com/vette-security/vette/releases) and install via CLI:
+### 1. Direct Inspection (Vetting)
 ```bash
-# For VS Code:
-code --install-extension extension/vette-vscode-0.1.0.vsix
+# Check an npm package:
+vette vet react
+vette vet react-secure-crypto-utils
 
-# For Cursor:
-cursor --install-extension extension/vette-vscode-0.1.0.vsix
+# Check a Python package on PyPI:
+vette vet requests -r pypi
+vette vet fastapi-jwt-auth-bearer -r pypi
 ```
-*Or via GUI:* Open Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`) ➔ `...` ➔ **Install from VSIX...**
+
+### 2. Pre-Install Interception
+```bash
+# This detects the slopsquat and STOPS execution before npm runs!
+vette npm install react-secure-crypto-utils
+
+# Safe packages pass straight through with zero lag:
+vette npm install picocolors
+```
+
+### 3. Full Project Dependency Audit
+```bash
+vette scan package.json
+vette scan requirements.txt
+```
+
+---
+
+## 💻 IDE Features (VS Code & Cursor)
+
+- 🔴 **Red Squiggly Underlines:** Flags hallucinated or suspicious packages directly in `package.json` and `requirements.txt`.
+- 🔍 **Rich Hover Cards:** Hover over any package to inspect its **SlopScore (0–100)**, age, weekly download count, and detected signals.
+- 🛡️ **Status Bar Indicator:** `$(shield) Vette` in the bottom bar with 1-click workspace scan.
 
 ---
 
 ## 🐙 GitHub Action (Pull Request CI/CD)
 
-Block malicious slopsquats from ever entering your codebase during Pull Requests.
+Add `.github/workflows/vette.yml` to your repo to prevent malicious slopsquats from ever being merged into your codebase:
 
-Create `.github/workflows/vette.yml`:
 ```yaml
 name: Vette Security Guard
 
@@ -129,83 +148,23 @@ jobs:
         with:
           node-version: 22
       - name: Run Vette Guard
-        run: npx --yes vette action
+        run: node dist/cli.cjs action
 ```
 
-### What It Injects Into Your PR:
-- **Rich Markdown Step Summary:** Summarizes every modified dependency with SlopScore, age, and weekly volume.
-- **Inline PR Annotations (`::error::` / `::warning::`):** Highlights dangerous lines directly in GitHub's file diff review UI.
-- **Fail-Safe CI Gate:** Exits with `code 1` on critical risk, blocking PR merges automatically.
+- Injects rich **GitHub Step Summary** markdown tables into your PR.
+- Places inline **PR Annotations** (`::error::` / `::warning::`) directly on the diff.
+- Fails the build (`exit 1`) if a dangerous slopsquat is found.
 
 ---
 
-## 🖥️ CLI Usage Guide
+## ⚡ Performance
 
-### 1. Direct Package Vetting
-```bash
-# Vet an npm package
-vette vet react
-vette vet react-secure-crypto-utils
-
-# Vet a PyPI package
-vette vet requests -r pypi
-vette vet langchain-gemini-tools-v2 -r pypi
-```
-
-### 2. Intercept Package Manager Installs
-Wrap package managers so dangerous packages are halted before scripts touch disk:
-```bash
-# Intercepts and blocks if malicious:
-vette npm install react-secure-crypto-utils
-
-# Works for Python pip:
-vette pip install langchain-gemini-tools-v2
-```
-
-### 3. Scan Entire Projects
-```bash
-# Scan Node.js project
-vette scan package.json
-
-# Scan Python project
-vette scan requirements.txt
-```
-
----
-
-## 📊 The SlopScore Heuristics
-
-Every package receives a **SlopScore (0–100)**:
-
-| Heuristic | Signal | Penalty |
-| :--- | :--- | :---: |
-| **Extreme Freshness** | Created $< 24$ hours ago | **+35 pts** |
-| **High Freshness** | Created $< 72$ hours ago | **+25 pts** |
-| **Zero Downloads** | 0 downloads recorded in the past week | **+25 pts** |
-| **Low Adoption** | $< 50$ weekly downloads | **+15 pts** |
-| **Dangerous Lifecycle Scripts** | Contains `postinstall`/`preinstall` shell commands (`curl`, `cmd`, `sh`, `eval`) | **+25 to +40 pts** |
-| **Lexical Slop Compound** | Matches brand + generic token pattern (`<brand>-utils`, `<brand>-helper`) | **+20 pts** |
-| **Unregistered / Hallucination** | Package does not exist on public registry (404) | **+85 pts** |
-| **High Community Trust** | $> 10,000$ weekly downloads & $> 180$ days history | **-25 pts (Bonus)** |
-
----
-
-## ⚡ Microsecond Caching
-Vette caches verified packages in `~/.vette/cache.json`:
-- **Mature Safe Packages:** Cached for 7 days (sub-10ms instantaneous lookups).
-- **Fresh / Risky Packages:** Short TTL to re-evaluate reputation in real-time.
-- **Clear Cache:** `vette clear-cache`
-
----
-
-## 🤝 Contributing
-
-We welcome community contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
-
-To report active AI-hallucinated packages found in the wild, please open a [Slopsquat Alert Issue](https://github.com/vette-security/vette/issues/new?template=report_slopsquat.yml).
+- **Cache Hit Latency:** **< 2 milliseconds**
+- **Uncached Registry Lookup:** **< 100 milliseconds**
+- **Bundle Size:** Standalone **163 KB** single-file binary with zero external dependencies.
 
 ---
 
 ## 📄 License
 
-MIT License © 2026 [Vette Security](https://github.com/vette-security)
+MIT License © 2026 [Vette Security](https://github.com/Kaustubh-Barad-007/vette)

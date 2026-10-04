@@ -4,86 +4,100 @@ import type { VettingResult } from '../types.js';
 export function printBanner(): void {
   console.log(
     pc.bold(pc.cyan('🛡️  Vette')) +
-    pc.dim(' v0.1.0 — Pre-install AI Slopsquatting & Zero-Day Interceptor')
+    pc.dim(' v0.1.0 · Zero-Day & AI Slopsquatting Defense')
   );
 }
 
 export function renderScoreGauge(score: number): string {
   const totalBars = 10;
-  const filled = Math.round((score / 100) * totalBars);
+  const filled = Math.min(10, Math.max(0, Math.round((score / 100) * totalBars)));
   const empty = totalBars - filled;
 
   let colorFn = pc.green;
-  if (score >= 70) colorFn = pc.red;
-  else if (score >= 30) colorFn = pc.yellow;
+  let label = 'SAFE';
+
+  if (score >= 70) {
+    colorFn = pc.red;
+    label = 'CRITICAL RISK';
+  } else if (score >= 30) {
+    colorFn = pc.yellow;
+    label = 'SUSPICIOUS';
+  }
 
   const bar = colorFn('█'.repeat(filled)) + pc.dim('░'.repeat(empty));
-  return `[${bar}] ${colorFn(pc.bold(`${score}/100`))}`;
+  return `${bar} ${colorFn(pc.bold(`${score}/100`))} ${pc.dim(`(${label})`)}`;
 }
 
 export function displayVettingCard(result: VettingResult): void {
   const { packageName, registry, slopScore, riskLevel, heuristics, metadata, cached } = result;
 
-  console.log('\n' + '─'.repeat(64));
-  
-  let header = '';
+  const width = 62;
+  const borderLine = pc.dim('─'.repeat(width));
+
+  console.log('\n' + borderLine);
+
+  // Status Pill & Title
   if (riskLevel === 'DANGEROUS') {
-    header = pc.bgRed(pc.white(pc.bold(' ⚠️  CRITICAL RISK DETECTED '))) + ' ' + pc.bold(pc.red(packageName));
+    console.log(
+      pc.bgRed(pc.white(pc.bold(' ✖ BLOCKED '))) + ' ' +
+      pc.bold(pc.red(packageName)) + ' ' +
+      pc.dim(`(${registry})`) +
+      (cached ? pc.dim(' · cached') : '')
+    );
   } else if (riskLevel === 'SUSPICIOUS') {
-    header = pc.bgYellow(pc.black(pc.bold(' ⚠️  SUSPICIOUS PACKAGE '))) + ' ' + pc.bold(pc.yellow(packageName));
+    console.log(
+      pc.bgYellow(pc.black(pc.bold(' ⚠ WARNING '))) + ' ' +
+      pc.bold(pc.yellow(packageName)) + ' ' +
+      pc.dim(`(${registry})`) +
+      (cached ? pc.dim(' · cached') : '')
+    );
   } else {
-    header = pc.bgGreen(pc.black(pc.bold(' ✓ VERIFIED SAFE '))) + ' ' + pc.bold(pc.green(packageName));
+    console.log(
+      pc.bgGreen(pc.black(pc.bold(' ✓ VERIFIED '))) + ' ' +
+      pc.bold(pc.green(packageName)) + ' ' +
+      pc.dim(`(${registry})`) +
+      (cached ? pc.dim(' · cached') : '')
+    );
   }
 
-  console.log(header + pc.dim(` (${registry})`));
-  console.log(
-    pc.dim('SlopScore: ') +
-    renderScoreGauge(slopScore) +
-    pc.dim(` [${riskLevel}]`) +
-    (cached ? pc.dim(' (from cache)') : '')
-  );
+  // SlopScore Gauge
+  console.log(pc.dim('  Threat Score: ') + renderScoreGauge(slopScore));
 
-  // Package summary
-  if (metadata.latestVersion) {
-    console.log(pc.dim('Version:   ') + pc.cyan(metadata.latestVersion));
-  }
-
+  // Package Overview Details
   const pubDate = metadata.latestPublishedAt || metadata.createdAt;
   if (pubDate) {
     const ageHours = Math.round((Date.now() - new Date(pubDate).getTime()) / (1000 * 60 * 60));
     const ageDays = (ageHours / 24).toFixed(1);
-    const ageColor = ageHours < 72 ? pc.red : pc.green;
+    const ageColor = ageHours < 72 ? pc.red : pc.white;
     console.log(
-      pc.dim('Published: ') +
-      ageColor(`${pubDate} (~${ageHours}h / ${ageDays}d ago)`)
+      pc.dim('  Published:    ') +
+      ageColor(`${ageDays} days ago (~${ageHours}h)`) +
+      (ageHours < 72 ? pc.red(' [FRESH]') : '')
     );
   }
 
   if (registry === 'npm') {
-    const dlColor = metadata.downloadsLastWeek === 0 ? pc.red : pc.cyan;
+    const dlColor = metadata.downloadsLastWeek === 0 ? pc.red : pc.white;
     console.log(
-      pc.dim('Downloads: ') +
+      pc.dim('  Downloads:    ') +
       dlColor(`${metadata.downloadsLastWeek.toLocaleString()} last week`)
     );
   }
 
-  if (metadata.author?.name) {
-    console.log(pc.dim('Author:    ') + pc.white(metadata.author.name) + (metadata.author.email ? pc.dim(` <${metadata.author.email}>`) : ''));
-  }
-
   if (metadata.hasInstallScripts) {
     console.log(
-      pc.bold(pc.red('Hooks:     ')) +
-      pc.red(pc.bold(Object.keys(metadata.installScripts).join(', ') + ' (EXECUTES CODE ON HOST)'))
+      pc.dim('  Install Hook: ') +
+      pc.red(pc.bold(`Active (${Object.keys(metadata.installScripts).join(', ')}) - RUNS ARBITRARY CODE`))
     );
   }
 
-  // Heuristics Breakdown
+  // Security Signals Breakdown
   if (heuristics.length > 0) {
-    console.log('\n' + pc.bold('Security Signals & Heuristics:'));
+    console.log('\n' + pc.bold('  Detected Signals:'));
     for (const h of heuristics) {
-      let icon = pc.cyan('ℹ');
+      let icon = pc.cyan('·');
       let titleColor = pc.cyan;
+
       if (h.severity === 'critical') {
         icon = pc.red('✖');
         titleColor = pc.red;
@@ -96,10 +110,24 @@ export function displayVettingCard(result: VettingResult): void {
       }
 
       const pts = h.points > 0 ? `+${h.points}` : `${h.points}`;
-      console.log(`  ${icon} ${titleColor(pc.bold(h.title))} ${pc.dim(`[${pts} pts]`)}`);
-      console.log(`     ${pc.dim(h.description)}`);
+      console.log(`    ${icon} ${titleColor(pc.bold(h.title))} ${pc.dim(`[${pts} pts]`)}`);
+      console.log(`      ${pc.dim(h.description)}`);
     }
   }
 
-  console.log('─'.repeat(64) + '\n');
+  // Clear Actionable Verdict
+  if (riskLevel === 'DANGEROUS') {
+    console.log(
+      '\n  ' + pc.bgRed(pc.white(pc.bold(' ACTION '))) + ' ' +
+      pc.red(pc.bold('Installation prevented.')) + ' ' +
+      pc.dim('Lifecycle scripts were blocked from running.')
+    );
+  } else if (riskLevel === 'SUSPICIOUS') {
+    console.log(
+      '\n  ' + pc.bgYellow(pc.black(pc.bold(' ACTION '))) + ' ' +
+      pc.yellow('Review author and source carefully before continuing.')
+    );
+  }
+
+  console.log(borderLine + '\n');
 }

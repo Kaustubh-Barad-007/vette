@@ -1149,8 +1149,8 @@ var require_command = __commonJS({
     "use strict";
     var EventEmitter = require("events").EventEmitter;
     var childProcess = require("child_process");
-    var path4 = require("path");
-    var fs4 = require("fs");
+    var path5 = require("path");
+    var fs5 = require("fs");
     var process2 = require("process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
     var { CommanderError: CommanderError2 } = require_error();
@@ -2131,7 +2131,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @param {string} subcommandName
        */
       _checkForMissingExecutable(executableFile, executableDir, subcommandName) {
-        if (fs4.existsSync(executableFile)) return;
+        if (fs5.existsSync(executableFile)) return;
         const executableDirMessage = executableDir ? `searched for local subcommand relative to directory '${executableDir}'` : "no directory for search for local subcommand, use .executableDir() to supply a custom directory";
         const executableMissing = `'${executableFile}' does not exist
  - if '${subcommandName}' is not meant to be an executable command, remove description parameter from '.command()' and use '.description()' instead
@@ -2149,11 +2149,11 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let launchWithNode = false;
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
-          const localBin = path4.resolve(baseDir, baseName);
-          if (fs4.existsSync(localBin)) return localBin;
-          if (sourceExt.includes(path4.extname(baseName))) return void 0;
+          const localBin = path5.resolve(baseDir, baseName);
+          if (fs5.existsSync(localBin)) return localBin;
+          if (sourceExt.includes(path5.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
-            (ext) => fs4.existsSync(`${localBin}${ext}`)
+            (ext) => fs5.existsSync(`${localBin}${ext}`)
           );
           if (foundExt) return `${localBin}${foundExt}`;
           return void 0;
@@ -2165,21 +2165,21 @@ Expecting one of '${allowedValues.join("', '")}'`);
         if (this._scriptPath) {
           let resolvedScriptPath;
           try {
-            resolvedScriptPath = fs4.realpathSync(this._scriptPath);
+            resolvedScriptPath = fs5.realpathSync(this._scriptPath);
           } catch {
             resolvedScriptPath = this._scriptPath;
           }
-          executableDir = path4.resolve(
-            path4.dirname(resolvedScriptPath),
+          executableDir = path5.resolve(
+            path5.dirname(resolvedScriptPath),
             executableDir
           );
         }
         if (executableDir) {
           let localFile = findFile(executableDir, executableFile);
           if (!localFile && !subcommand._executableFile && this._scriptPath) {
-            const legacyName = path4.basename(
+            const legacyName = path5.basename(
               this._scriptPath,
-              path4.extname(this._scriptPath)
+              path5.extname(this._scriptPath)
             );
             if (legacyName !== this._name) {
               localFile = findFile(
@@ -2190,7 +2190,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           }
           executableFile = localFile || executableFile;
         }
-        launchWithNode = sourceExt.includes(path4.extname(executableFile));
+        launchWithNode = sourceExt.includes(path5.extname(executableFile));
         let proc;
         if (process2.platform !== "win32") {
           if (launchWithNode) {
@@ -3037,7 +3037,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @return {Command}
        */
       nameFromFilename(filename) {
-        this._name = path4.basename(filename, path4.extname(filename));
+        this._name = path5.basename(filename, path5.extname(filename));
         return this;
       }
       /**
@@ -3051,9 +3051,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @param {string} [path]
        * @return {(string|null|Command)}
        */
-      executableDir(path5) {
-        if (path5 === void 0) return this._executableDir;
-        this._executableDir = path5;
+      executableDir(path6) {
+        if (path6 === void 0) return this._executableDir;
+        this._executableDir = path6;
         return this;
       }
       /**
@@ -3417,70 +3417,74 @@ var {
 } = import_index.default;
 
 // src/cli.ts
-var import_picocolors5 = __toESM(require_picocolors(), 1);
+var import_picocolors6 = __toESM(require_picocolors(), 1);
 
 // src/ui/display.ts
 var import_picocolors = __toESM(require_picocolors(), 1);
 function printBanner() {
   console.log(
-    import_picocolors.default.bold(import_picocolors.default.cyan("\u{1F6E1}\uFE0F  Vette")) + import_picocolors.default.dim(" v0.1.0 \u2014 Pre-install AI Slopsquatting & Zero-Day Interceptor")
+    import_picocolors.default.bold(import_picocolors.default.cyan("\u{1F6E1}\uFE0F  Vette")) + import_picocolors.default.dim(" v0.1.0 \xB7 Zero-Day & AI Slopsquatting Defense")
   );
 }
 function renderScoreGauge(score) {
   const totalBars = 10;
-  const filled = Math.round(score / 100 * totalBars);
+  const filled = Math.min(10, Math.max(0, Math.round(score / 100 * totalBars)));
   const empty = totalBars - filled;
   let colorFn = import_picocolors.default.green;
-  if (score >= 70) colorFn = import_picocolors.default.red;
-  else if (score >= 30) colorFn = import_picocolors.default.yellow;
+  let label = "SAFE";
+  if (score >= 70) {
+    colorFn = import_picocolors.default.red;
+    label = "CRITICAL RISK";
+  } else if (score >= 30) {
+    colorFn = import_picocolors.default.yellow;
+    label = "SUSPICIOUS";
+  }
   const bar = colorFn("\u2588".repeat(filled)) + import_picocolors.default.dim("\u2591".repeat(empty));
-  return `[${bar}] ${colorFn(import_picocolors.default.bold(`${score}/100`))}`;
+  return `${bar} ${colorFn(import_picocolors.default.bold(`${score}/100`))} ${import_picocolors.default.dim(`(${label})`)}`;
 }
 function displayVettingCard(result) {
   const { packageName, registry, slopScore, riskLevel, heuristics, metadata, cached } = result;
-  console.log("\n" + "\u2500".repeat(64));
-  let header = "";
+  const width = 62;
+  const borderLine = import_picocolors.default.dim("\u2500".repeat(width));
+  console.log("\n" + borderLine);
   if (riskLevel === "DANGEROUS") {
-    header = import_picocolors.default.bgRed(import_picocolors.default.white(import_picocolors.default.bold(" \u26A0\uFE0F  CRITICAL RISK DETECTED "))) + " " + import_picocolors.default.bold(import_picocolors.default.red(packageName));
+    console.log(
+      import_picocolors.default.bgRed(import_picocolors.default.white(import_picocolors.default.bold(" \u2716 BLOCKED "))) + " " + import_picocolors.default.bold(import_picocolors.default.red(packageName)) + " " + import_picocolors.default.dim(`(${registry})`) + (cached ? import_picocolors.default.dim(" \xB7 cached") : "")
+    );
   } else if (riskLevel === "SUSPICIOUS") {
-    header = import_picocolors.default.bgYellow(import_picocolors.default.black(import_picocolors.default.bold(" \u26A0\uFE0F  SUSPICIOUS PACKAGE "))) + " " + import_picocolors.default.bold(import_picocolors.default.yellow(packageName));
+    console.log(
+      import_picocolors.default.bgYellow(import_picocolors.default.black(import_picocolors.default.bold(" \u26A0 WARNING "))) + " " + import_picocolors.default.bold(import_picocolors.default.yellow(packageName)) + " " + import_picocolors.default.dim(`(${registry})`) + (cached ? import_picocolors.default.dim(" \xB7 cached") : "")
+    );
   } else {
-    header = import_picocolors.default.bgGreen(import_picocolors.default.black(import_picocolors.default.bold(" \u2713 VERIFIED SAFE "))) + " " + import_picocolors.default.bold(import_picocolors.default.green(packageName));
+    console.log(
+      import_picocolors.default.bgGreen(import_picocolors.default.black(import_picocolors.default.bold(" \u2713 VERIFIED "))) + " " + import_picocolors.default.bold(import_picocolors.default.green(packageName)) + " " + import_picocolors.default.dim(`(${registry})`) + (cached ? import_picocolors.default.dim(" \xB7 cached") : "")
+    );
   }
-  console.log(header + import_picocolors.default.dim(` (${registry})`));
-  console.log(
-    import_picocolors.default.dim("SlopScore: ") + renderScoreGauge(slopScore) + import_picocolors.default.dim(` [${riskLevel}]`) + (cached ? import_picocolors.default.dim(" (from cache)") : "")
-  );
-  if (metadata.latestVersion) {
-    console.log(import_picocolors.default.dim("Version:   ") + import_picocolors.default.cyan(metadata.latestVersion));
-  }
+  console.log(import_picocolors.default.dim("  Threat Score: ") + renderScoreGauge(slopScore));
   const pubDate = metadata.latestPublishedAt || metadata.createdAt;
   if (pubDate) {
     const ageHours = Math.round((Date.now() - new Date(pubDate).getTime()) / (1e3 * 60 * 60));
     const ageDays = (ageHours / 24).toFixed(1);
-    const ageColor = ageHours < 72 ? import_picocolors.default.red : import_picocolors.default.green;
+    const ageColor = ageHours < 72 ? import_picocolors.default.red : import_picocolors.default.white;
     console.log(
-      import_picocolors.default.dim("Published: ") + ageColor(`${pubDate} (~${ageHours}h / ${ageDays}d ago)`)
+      import_picocolors.default.dim("  Published:    ") + ageColor(`${ageDays} days ago (~${ageHours}h)`) + (ageHours < 72 ? import_picocolors.default.red(" [FRESH]") : "")
     );
   }
   if (registry === "npm") {
-    const dlColor = metadata.downloadsLastWeek === 0 ? import_picocolors.default.red : import_picocolors.default.cyan;
+    const dlColor = metadata.downloadsLastWeek === 0 ? import_picocolors.default.red : import_picocolors.default.white;
     console.log(
-      import_picocolors.default.dim("Downloads: ") + dlColor(`${metadata.downloadsLastWeek.toLocaleString()} last week`)
+      import_picocolors.default.dim("  Downloads:    ") + dlColor(`${metadata.downloadsLastWeek.toLocaleString()} last week`)
     );
-  }
-  if (metadata.author?.name) {
-    console.log(import_picocolors.default.dim("Author:    ") + import_picocolors.default.white(metadata.author.name) + (metadata.author.email ? import_picocolors.default.dim(` <${metadata.author.email}>`) : ""));
   }
   if (metadata.hasInstallScripts) {
     console.log(
-      import_picocolors.default.bold(import_picocolors.default.red("Hooks:     ")) + import_picocolors.default.red(import_picocolors.default.bold(Object.keys(metadata.installScripts).join(", ") + " (EXECUTES CODE ON HOST)"))
+      import_picocolors.default.dim("  Install Hook: ") + import_picocolors.default.red(import_picocolors.default.bold(`Active (${Object.keys(metadata.installScripts).join(", ")}) - RUNS ARBITRARY CODE`))
     );
   }
   if (heuristics.length > 0) {
-    console.log("\n" + import_picocolors.default.bold("Security Signals & Heuristics:"));
+    console.log("\n" + import_picocolors.default.bold("  Detected Signals:"));
     for (const h of heuristics) {
-      let icon = import_picocolors.default.cyan("\u2139");
+      let icon = import_picocolors.default.cyan("\xB7");
       let titleColor = import_picocolors.default.cyan;
       if (h.severity === "critical") {
         icon = import_picocolors.default.red("\u2716");
@@ -3493,11 +3497,20 @@ function displayVettingCard(result) {
         titleColor = import_picocolors.default.yellow;
       }
       const pts = h.points > 0 ? `+${h.points}` : `${h.points}`;
-      console.log(`  ${icon} ${titleColor(import_picocolors.default.bold(h.title))} ${import_picocolors.default.dim(`[${pts} pts]`)}`);
-      console.log(`     ${import_picocolors.default.dim(h.description)}`);
+      console.log(`    ${icon} ${titleColor(import_picocolors.default.bold(h.title))} ${import_picocolors.default.dim(`[${pts} pts]`)}`);
+      console.log(`      ${import_picocolors.default.dim(h.description)}`);
     }
   }
-  console.log("\u2500".repeat(64) + "\n");
+  if (riskLevel === "DANGEROUS") {
+    console.log(
+      "\n  " + import_picocolors.default.bgRed(import_picocolors.default.white(import_picocolors.default.bold(" ACTION "))) + " " + import_picocolors.default.red(import_picocolors.default.bold("Installation prevented.")) + " " + import_picocolors.default.dim("Lifecycle scripts were blocked from running.")
+    );
+  } else if (riskLevel === "SUSPICIOUS") {
+    console.log(
+      "\n  " + import_picocolors.default.bgYellow(import_picocolors.default.black(import_picocolors.default.bold(" ACTION "))) + " " + import_picocolors.default.yellow("Review author and source carefully before continuing.")
+    );
+  }
+  console.log(borderLine + "\n");
 }
 
 // src/registries/npm.ts
@@ -4229,9 +4242,63 @@ async function runGithubAction() {
   return 0;
 }
 
+// src/commands/extension.ts
+var import_node_child_process = require("child_process");
+var import_node_path4 = __toESM(require("path"), 1);
+var import_node_fs4 = __toESM(require("fs"), 1);
+var import_node_os2 = __toESM(require("os"), 1);
+var import_picocolors4 = __toESM(require_picocolors(), 1);
+async function runInstallExtension() {
+  console.log(import_picocolors4.default.bold(import_picocolors4.default.cyan("\n\u{1F6E1}\uFE0F  Vette Universal IDE Extension Installer")));
+  console.log(import_picocolors4.default.dim("Detecting installed editors (VS Code, Cursor, Windsurf, VSCodium)...\n"));
+  let vsixPath = import_node_path4.default.resolve(__dirname, "../extension/vette-vscode-0.1.0.vsix");
+  if (!import_node_fs4.default.existsSync(vsixPath)) {
+    vsixPath = import_node_path4.default.resolve(process.cwd(), "extension/vette-vscode-0.1.0.vsix");
+  }
+  if (!import_node_fs4.default.existsSync(vsixPath)) {
+    console.log(import_picocolors4.default.yellow("\u2B07\uFE0F  Downloading extension VSIX from GitHub..."));
+    const tempFile = import_node_path4.default.join(import_node_os2.default.tmpdir(), "vette-vscode.vsix");
+    try {
+      const url = "https://raw.githubusercontent.com/Kaustubh-Barad-007/vette/main/extension/vette-vscode-0.1.0.vsix";
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buffer = await res.arrayBuffer();
+      import_node_fs4.default.writeFileSync(tempFile, Buffer.from(buffer));
+      vsixPath = tempFile;
+    } catch (err) {
+      console.error(import_picocolors4.default.red(`Failed to download extension: ${err.message}`));
+      return 1;
+    }
+  }
+  const editors = ["code", "cursor", "windsurf", "codium"];
+  let installedCount = 0;
+  for (const editor of editors) {
+    try {
+      const checkCmd = process.platform === "win32" ? `where.exe ${editor}` : `which ${editor}`;
+      (0, import_node_child_process.execSync)(checkCmd, { stdio: "ignore" });
+      process.stdout.write(`Installing into ${import_picocolors4.default.bold(editor)}... `);
+      const installCmd = `${editor} --install-extension "${vsixPath}" --force`;
+      (0, import_node_child_process.execSync)(installCmd, { stdio: "ignore" });
+      console.log(import_picocolors4.default.green(import_picocolors4.default.bold("[SUCCESS]")));
+      installedCount++;
+    } catch {
+    }
+  }
+  if (installedCount > 0) {
+    console.log(import_picocolors4.default.green(import_picocolors4.default.bold(`
+\u2713 Vette successfully activated in ${installedCount} editor(s)!`)));
+    console.log(import_picocolors4.default.dim("Open package.json or requirements.txt to see real-time AI slopsquat protection active.\n"));
+    return 0;
+  }
+  console.log(import_picocolors4.default.yellow("No supported editor CLI (code, cursor, windsurf, codium) was found on your PATH."));
+  console.log(import_picocolors4.default.white(`You can install manually by running: ${import_picocolors4.default.cyan(`code --install-extension "${vsixPath}"`)}
+`));
+  return 0;
+}
+
 // src/commands/intercept.ts
 var import_node_readline = __toESM(require("readline"), 1);
-var import_picocolors4 = __toESM(require_picocolors(), 1);
+var import_picocolors5 = __toESM(require_picocolors(), 1);
 
 // src/interceptor/parser.ts
 function parseInterceptedCommand(args) {
@@ -4302,11 +4369,11 @@ function parseInterceptedCommand(args) {
 }
 
 // src/interceptor/runner.ts
-var import_node_child_process = require("child_process");
+var import_node_child_process2 = require("child_process");
 function runPassthroughCommand(manager, args) {
   return new Promise((resolve) => {
     const cmd = process.platform === "win32" && manager === "npm" ? "npm.cmd" : manager;
-    const child = (0, import_node_child_process.spawn)(cmd, args, {
+    const child = (0, import_node_child_process2.spawn)(cmd, args, {
       stdio: "inherit",
       shell: process.platform === "win32"
     });
@@ -4341,7 +4408,7 @@ async function handleIntercept(rawArgs2, forceUnsafe = false) {
     const rest2 = parsed ? rawArgs2.slice(1) : rawArgs2.slice(1);
     return runPassthroughCommand(manager2, rest2);
   }
-  console.log(import_picocolors4.default.cyan(`\u{1F6E1}\uFE0F  Vette inspecting ${parsed.packages.length} package(s) before execution...`));
+  console.log(import_picocolors5.default.cyan(`\u{1F6E1}\uFE0F  Vette inspecting ${parsed.packages.length} package(s) before execution...`));
   const results = [];
   for (const pkg of parsed.packages) {
     const res = await vetPackage(pkg.name, pkg.registry);
@@ -4360,10 +4427,10 @@ async function handleIntercept(rawArgs2, forceUnsafe = false) {
   }
   if (hasDangerous) {
     if (forceUnsafe) {
-      console.log(import_picocolors4.default.yellow("\n\u26A0\uFE0F  Bypassing critical security block due to --force-unsafe flag!"));
+      console.log(import_picocolors5.default.yellow("\n\u26A0\uFE0F  Bypassing critical security block due to --force-unsafe flag!"));
     } else {
       console.log(
-        import_picocolors4.default.bgRed(import_picocolors4.default.white(import_picocolors4.default.bold(" \u{1F6A8} EXECUTION BLOCKED BY VETTE \u{1F6A8} "))) + "\n" + import_picocolors4.default.red(import_picocolors4.default.bold("High risk of AI Slopsquatting / Zero-Day poisoning detected!")) + "\n" + import_picocolors4.default.dim("Pre-install lifecycle scripts were prevented from running on your machine.") + "\n" + import_picocolors4.default.dim("If you are certain this package is legitimate, rerun with: ") + import_picocolors4.default.cyan(`vette --force-unsafe ${rawArgs2.join(" ")}
+        import_picocolors5.default.bgRed(import_picocolors5.default.white(import_picocolors5.default.bold(" \u{1F6A8} EXECUTION BLOCKED BY VETTE \u{1F6A8} "))) + "\n" + import_picocolors5.default.red(import_picocolors5.default.bold("High risk of AI Slopsquatting / Zero-Day poisoning detected!")) + "\n" + import_picocolors5.default.dim("Pre-install lifecycle scripts were prevented from running on your machine.") + "\n" + import_picocolors5.default.dim("If you are certain this package is legitimate, rerun with: ") + import_picocolors5.default.cyan(`vette --force-unsafe ${rawArgs2.join(" ")}
 `)
       );
       return 1;
@@ -4371,10 +4438,10 @@ async function handleIntercept(rawArgs2, forceUnsafe = false) {
   }
   if (hasSuspicious && !hasDangerous && !forceUnsafe) {
     const proceed = await askConfirmation(
-      import_picocolors4.default.bold(import_picocolors4.default.yellow("\u26A0\uFE0F  Package flagged as suspicious. Do you wish to continue with installation? [y/N]: "))
+      import_picocolors5.default.bold(import_picocolors5.default.yellow("\u26A0\uFE0F  Package flagged as suspicious. Do you wish to continue with installation? [y/N]: "))
     );
     if (!proceed) {
-      console.log(import_picocolors4.default.red("\n\u2716 Installation aborted safely. Host was not modified.\n"));
+      console.log(import_picocolors5.default.red("\n\u2716 Installation aborted safely. Host was not modified.\n"));
       return 0;
     }
   }
@@ -4385,10 +4452,10 @@ async function handleIntercept(rawArgs2, forceUnsafe = false) {
 // src/cli.ts
 var program2 = new Command();
 program2.name("vette").description("\u{1F6E1}\uFE0F  Zero-latency pre-install runtime interceptor and AI slopsquatting defense").version("0.1.0").option("--force-unsafe", "Bypass high-risk security blocks").allowUnknownOption(true);
-program2.command("vet <package>").description("Inspect a specific package reputation before installing").option("-r, --registry <registry>", "Registry to inspect (npm or pypi)", "npm").option("--no-cache", "Bypass local reputation cache").action(async (packageName, options) => {
+program2.command("vet <package>").description("Inspect package reputation before installing").option("-r, --registry <registry>", "Registry to inspect (npm or pypi)", "npm").option("--no-cache", "Bypass local reputation cache").action(async (packageName, options) => {
   printBanner();
   const registry = options.registry.toLowerCase() === "pypi" ? "pypi" : "npm";
-  console.log(import_picocolors5.default.cyan(`Vetting ${import_picocolors5.default.bold(packageName)} on ${registry}...`));
+  console.log(import_picocolors6.default.cyan(`Vetting ${import_picocolors6.default.bold(packageName)} on ${registry}...`));
   const result = await vetPackage(packageName, registry, {
     bypassCache: options.cache === false
   });
@@ -4405,33 +4472,50 @@ program2.command("action").alias("github-action").description("Run Vette securit
   const code = await runGithubAction();
   process.exit(code);
 });
+program2.command("install-extension").alias("ext").description("Auto-detect and install Vette extension into VS Code, Cursor, Windsurf, VSCodium").action(async () => {
+  const code = await runInstallExtension();
+  process.exit(code);
+});
 program2.command("clear-cache").description("Purge the local Vette reputation cache").action(() => {
   vetteCache.clear();
-  console.log(import_picocolors5.default.green("\u2713 Vette local reputation cache cleared."));
+  console.log(import_picocolors6.default.green("\u2713 Vette local reputation cache cleared."));
   process.exit(0);
 });
 program2.command("init").description("Print shell configuration alias/shim to intercept npm/pip automatically").option("--shell <type>", "Shell type: zsh, bash, or powershell", "powershell").action((options) => {
   printBanner();
-  console.log(import_picocolors5.default.bold("\nTo enable automatic pre-install interception in your shell:\n"));
+  console.log(import_picocolors6.default.bold("\nTo enable automatic pre-install interception in your shell:\n"));
   if (options.shell === "powershell" || process.platform === "win32") {
-    console.log(import_picocolors5.default.cyan("# Add to your PowerShell $PROFILE:"));
-    console.log(import_picocolors5.default.white(`function npm { vette npm $args }
+    console.log(import_picocolors6.default.cyan("# Add to your PowerShell $PROFILE:"));
+    console.log(import_picocolors6.default.white(`function npm { vette npm $args }
 function pip { vette pip $args }`));
   } else {
-    console.log(import_picocolors5.default.cyan("# Add to ~/.bashrc or ~/.zshrc:"));
-    console.log(import_picocolors5.default.white(`npm() { vette npm "$@"; }
+    console.log(import_picocolors6.default.cyan("# Add to ~/.bashrc or ~/.zshrc:"));
+    console.log(import_picocolors6.default.white(`npm() { vette npm "$@"; }
 pip() { vette pip "$@"; }`));
   }
-  console.log(import_picocolors5.default.dim("\nOnce added, all `npm install` and `pip install` commands will be vetted before execution!"));
+  console.log(import_picocolors6.default.dim("\nOnce added, all `npm install` and `pip install` commands will be vetted before execution!"));
   process.exit(0);
 });
 var rawArgs = process.argv.slice(2);
-var knownSubcommands = ["vet", "scan", "action", "github-action", "clear-cache", "init", "--help", "-h", "--version", "-V"];
+var knownSubcommands = [
+  "vet",
+  "scan",
+  "action",
+  "github-action",
+  "install-extension",
+  "ext",
+  "clear-cache",
+  "init",
+  "--help",
+  "-h",
+  "--version",
+  "-V"
+];
 if (rawArgs.length > 0 && !knownSubcommands.includes(rawArgs[0]) && !rawArgs[0].startsWith("-")) {
   const forceUnsafe = process.argv.includes("--force-unsafe");
   const filteredArgs = rawArgs.filter((a) => a !== "--force-unsafe");
   handleIntercept(filteredArgs, forceUnsafe).then((code) => process.exit(code)).catch((err) => {
-    console.error(import_picocolors5.default.red("Vette interception error:"), err);
+    console.error(import_picocolors6.default.red("Vette interception error:"), err);
     process.exit(1);
   });
 } else {

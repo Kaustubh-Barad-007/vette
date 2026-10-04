@@ -4,6 +4,7 @@ import { printBanner, displayVettingCard } from './ui/display.js';
 import { vetPackage } from './engine/service.js';
 import { runScan } from './commands/scan.js';
 import { runGithubAction } from './commands/github-action.js';
+import { runInstallExtension } from './commands/extension.js';
 import { handleIntercept } from './commands/intercept.js';
 import { vetteCache } from './cache/cache.js';
 import type { RegistryType } from './types.js';
@@ -20,7 +21,7 @@ program
 // 1. Standalone Vetting Command
 program
   .command('vet <package>')
-  .description('Inspect a specific package reputation before installing')
+  .description('Inspect package reputation before installing')
   .option('-r, --registry <registry>', 'Registry to inspect (npm or pypi)', 'npm')
   .option('--no-cache', 'Bypass local reputation cache')
   .action(async (packageName: string, options: any) => {
@@ -57,7 +58,17 @@ program
     process.exit(code);
   });
 
-// 4. Clear Cache
+// 4. Install IDE Extension
+program
+  .command('install-extension')
+  .alias('ext')
+  .description('Auto-detect and install Vette extension into VS Code, Cursor, Windsurf, VSCodium')
+  .action(async () => {
+    const code = await runInstallExtension();
+    process.exit(code);
+  });
+
+// 5. Clear Cache
 program
   .command('clear-cache')
   .description('Purge the local Vette reputation cache')
@@ -67,7 +78,7 @@ program
     process.exit(0);
   });
 
-// 5. Shell Integration Init
+// 6. Shell Integration Init
 program
   .command('init')
   .description('Print shell configuration alias/shim to intercept npm/pip automatically')
@@ -86,16 +97,27 @@ program
     process.exit(0);
   });
 
-// 6. Intercept / Passthrough Default Action
-// If the first argument is a package manager (npm, pip, yarn, etc.) or unknown command, route through interceptor
+// 7. Intercept / Passthrough Default Action
 const rawArgs = process.argv.slice(2);
 
-const knownSubcommands = ['vet', 'scan', 'action', 'github-action', 'clear-cache', 'init', '--help', '-h', '--version', '-V'];
+const knownSubcommands = [
+  'vet',
+  'scan',
+  'action',
+  'github-action',
+  'install-extension',
+  'ext',
+  'clear-cache',
+  'init',
+  '--help',
+  '-h',
+  '--version',
+  '-V',
+];
 
 if (rawArgs.length > 0 && !knownSubcommands.includes(rawArgs[0]) && !rawArgs[0].startsWith('-')) {
-  // It's a command like `vette npm install ...` or `vette pip install ...`
   const forceUnsafe = process.argv.includes('--force-unsafe');
-  const filteredArgs = rawArgs.filter(a => a !== '--force-unsafe');
+  const filteredArgs = rawArgs.filter((a) => a !== '--force-unsafe');
 
   handleIntercept(filteredArgs, forceUnsafe)
     .then((code) => process.exit(code))
