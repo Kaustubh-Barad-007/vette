@@ -2,9 +2,9 @@
   "name": "vette",
   "version": "0.1.0",
   "description": "Zero-latency pre-install runtime interceptor and AI slopsquatting defense tool",
-  "main": "dist/cli.js",
+  "main": "dist/cli.cjs",
   "bin": {
-    "vette": "./dist/cli.js"
+    "vette": "./dist/cli.cjs"
   },
   "files": [
     "dist",

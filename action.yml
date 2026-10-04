@@ -21,4 +21,4 @@ runs:
     - name: Run Vette Guard Action
       shell: bash
       run: |
-        node ${{ github.action_path }}/dist/cli.js action
+        node ${{ github.action_path }}/dist/cli.cjs action

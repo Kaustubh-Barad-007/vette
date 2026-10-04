@@ -25,4 +25,4 @@ jobs:
 
       - name: Run Vette Security Guard
         run: |
-          npx --yes vette action
+          node dist/cli.cjs action
