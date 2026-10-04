@@ -1,0 +1,39 @@
+name: 🚨 Report Poisoned / Slopsquatted Package
+description: Report an active AI-hallucinated or zero-day malicious package on npm or PyPI
+title: "[Slopsquat]: "
+labels: ["slopsquat-alert", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to submit packages registered to capture AI hallucinations or execute unauthorized lifecycle scripts.
+  - type: input
+    id: package_name
+    attributes:
+      label: Package Name
+      placeholder: "e.g., react-secure-crypto-utils"
+    validations:
+      required: true
+  - type: dropdown
+    id: registry
+    attributes:
+      label: Registry
+      options:
+        - npm
+        - PyPI
+    validations:
+      required: true
+  - type: textarea
+    id: hallucination_source
+    attributes:
+      label: Which AI model or prompt hallucinated this?
+      placeholder: "e.g., ChatGPT-4o hallucinated this when prompted for Next.js AES encryption utilities."
+    validations:
+      required: false
+  - type: textarea
+    id: malicious_evidence
+    attributes:
+      label: Evidence or Malicious Behavior
+      placeholder: "e.g., Package has postinstall script that curls external webhook, zero downloads, created 2 hours ago."
+    validations:
+      required: true

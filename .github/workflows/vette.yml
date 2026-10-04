@@ -1,0 +1,28 @@
+name: Vette Security Guard
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+  push:
+    branches: [main, master]
+
+jobs:
+  vette-scan:
+    name: Vet Dependencies against AI Slopsquatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run Vette Security Guard
+        run: |
+          npx --yes vette action

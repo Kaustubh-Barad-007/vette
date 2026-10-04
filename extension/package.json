@@ -1,0 +1,75 @@
+{
+  "name": "vette-vscode",
+  "displayName": "Vette: AI Slopsquatting & Package Guard",
+  "description": "Real-time inline detection and hover alerts for AI-hallucinated packages, slopsquatting, and malicious dependencies in VS Code & Cursor.",
+  "version": "0.1.0",
+  "publisher": "vette-security",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vette-security/vette"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages",
+    "Security"
+  ],
+  "keywords": [
+    "security",
+    "slopsquatting",
+    "ai-hallucination",
+    "supply-chain",
+    "npm",
+    "pypi"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:json",
+    "onLanguage:jsonc",
+    "onLanguage:pip-requirements",
+    "workspaceContains:package.json",
+    "workspaceContains:requirements.txt"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "vette.scanWorkspace",
+        "title": "Vette: Scan Workspace for AI Slopsquats"
+      },
+      {
+        "command": "vette.clearCache",
+        "title": "Vette: Clear Reputation Cache"
+      }
+    ],
+    "configuration": {
+      "title": "Vette",
+      "properties": {
+        "vette.enableInlineDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable squiggly warning lines on hallucinated or risky dependencies."
+        },
+        "vette.enableHover": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show detailed SlopScore, age, and download tooltips when hovering over package names."
+        },
+        "vette.riskThreshold": {
+          "type": "number",
+          "default": 30,
+          "description": "Minimum SlopScore to trigger a warning (default: 30)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup src/extension.ts --format cjs --external vscode --no-shims"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  }
+}

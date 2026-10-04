@@ -1,0 +1,24 @@
+name: 'Vette Guard: AI Slopsquatting & Zero-Day Interceptor'
+description: 'Pre-install supply-chain protection against AI hallucinated package poisoning, slopsquatting, and malicious lifecycle hooks.'
+author: 'Vette Security'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  target-file:
+    description: 'Path to package.json or requirements.txt (defaults to auto-detect)'
+    required: false
+    default: ''
+  fail-on-critical:
+    description: 'Fail the workflow if dangerous hallucinated or zero-day packages are detected'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run Vette Guard Action
+      shell: bash
+      run: |
+        node ${{ github.action_path }}/dist/cli.js action
