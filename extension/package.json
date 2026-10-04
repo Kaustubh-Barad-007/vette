@@ -65,7 +65,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/extension.ts --format cjs --external vscode --no-shims"
+    "build": "tsup --config tsup.config.ts"
   },
   "devDependencies": {
     "@types/vscode": "^1.80.0",
